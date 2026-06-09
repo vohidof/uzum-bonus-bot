@@ -6,6 +6,8 @@ from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, C
 import database
 from texts import MESSAGES
 
+print("Бот успешно запущен!")
+
 # Получаем токен из переменных окружения
 TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=TOKEN)
