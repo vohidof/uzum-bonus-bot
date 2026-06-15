@@ -18,16 +18,14 @@ bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher(storage=MemoryStorage())
 ADMIN_ID = int(os.getenv("ADMIN_ID", "0")) 
 
-# --- ФУНКЦИЯ ДИНАМИЧЕСКОЙ НАСТРОЙКИ МЕНЮ ---
 async def update_user_menu(user_id: int, lang: str):
     commands = [
         BotCommand(command="promo", description=MESSAGES[lang]['menu_promo']),
         BotCommand(command="lang", description=MESSAGES[lang]['menu_lang'])
     ]
-    
+    # ТЕПЕРЬ ТУТ ДИНАМИЧЕСКИЙ ПЕРЕВОД ДЛЯ АДМИНА КНОПКИ /admin
     if user_id == ADMIN_ID:
-        commands.append(BotCommand(command="admin", description="🔧 Панель управления"))
-    
+        commands.append(BotCommand(command="admin", description=MESSAGES[lang]['menu_admin']))
     try:
         await bot.set_my_commands(commands, scope=BotCommandScopeChat(chat_id=user_id))
     except Exception as e:
@@ -39,8 +37,8 @@ async def update_user_menu(user_id: int, lang: str):
 async def lang_cmd(message: Message, state: FSMContext):
     await state.clear() 
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang_ru"),
-         InlineKeyboardButton(text="🇺🇿 O'zbekcha", callback_data="lang_uz")]
+        [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="menulang_ru"),
+         InlineKeyboardButton(text="🇺🇿 O'zbekcha", callback_data="menulang_uz")]
     ])
     await message.answer("Выберите язык / Tilni tanlang:", reply_markup=kb)
 
@@ -59,32 +57,45 @@ async def promo_cmd(message: Message, state: FSMContext):
 async def admin_panel_cmd(message: Message):
     if message.from_user.id != ADMIN_ID:
         return
-    await message.answer("🔧 **Панель администратора GazpromBonus**\n\nВы находитесь в режиме управления. Все заявки приходят сюда.")
+    await message.answer("🔧 **Панель администратора GazpromBonus**\n\nВы находитесь в режиме управления. Все поступающие заявки будут отображаться ниже.")
 
 @dp.message(Command("start"))
 async def start_cmd(message: Message, state: FSMContext):
     await state.clear()
-    # УБРАЛИ отсюда создание базы данных, так как она теперь создается при старте всего бота
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang_ru"),
-         InlineKeyboardButton(text="🇺🇿 O'zbekcha", callback_data="lang_uz")]
+        [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="initlang_ru"),
+         InlineKeyboardButton(text="🇺🇿 O'zbekcha", callback_data="initlang_uz")]
     ])
     await message.answer("Здравствуйте! / Assalomu alaykum!\nВыберите язык / Tilni tanlang:", reply_markup=kb)
 
-@dp.callback_query(F.data.startswith("lang_"))
+# --- ОБРАБОТКА ВЫБОРА ЯЗЫКА ---
+@dp.callback_query(F.data.startswith("initlang_") | F.data.startswith("menulang_"))
 async def set_language(callback: CallbackQuery, state: FSMContext):
-    lang = callback.data.split("_")[1]
+    action, lang = callback.data.split("_")
     await database.set_lang(callback.from_user.id, lang)
-    
     await update_user_menu(callback.from_user.id, lang)
-    await callback.message.edit_text(MESSAGES[lang]['lang_selected'], reply_markup=None)
     
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=MESSAGES[lang]['btn_order_num'], callback_data="method_number"),
-         InlineKeyboardButton(text=MESSAGES[lang]['btn_screenshot'], callback_data="method_photo")]
-    ])
-    await callback.message.answer(MESSAGES[lang]['choice_method'], reply_markup=kb)
+    # Если переключается админ — просто выводим уведомление и завершаем
+    if callback.from_user.id == ADMIN_ID:
+        await callback.message.edit_text(MESSAGES[lang]['lang_changed_admin'], reply_markup=None)
+        await callback.answer()
+        return
+
+    # Логика для обычных пользователей
+    if action == "initlang":
+        await callback.message.edit_text(MESSAGES[lang]['lang_selected'], reply_markup=None)
+        
+        kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text=MESSAGES[lang]['btn_order_num'], callback_data="method_number"),
+             InlineKeyboardButton(text=MESSAGES[lang]['btn_screenshot'], callback_data="method_photo")]
+        ])
+        await callback.message.answer(MESSAGES[lang]['choice_method'], reply_markup=kb)
+    else:
+        await callback.message.edit_text(MESSAGES[lang]['lang_changed_menu'], reply_markup=None, parse_mode="Markdown")
+        
     await callback.answer()
+
+# --- ОСТАЛЬНАЯ ЛОГИКА ---
 
 @dp.callback_query(F.data.startswith("method_"))
 async def choose_method(callback: CallbackQuery, state: FSMContext):
@@ -144,7 +155,7 @@ async def process_review_photo(message: Message, state: FSMContext):
     
     if method == "number":
         admin_text += f"🔢 Номер заказа: `{order_info}`\n"
-        await bot.send_photo(chat_id=ADMIN_ID, photo=review_photo_id, caption=admin_text + "\n📸 Фото отзыва ниже:", reply_markup=admin_kb)
+        await bot.send_photo(chat_id=ADMIN_ID, photo=review_photo_id, caption=admin_text + "\n📸 Фото отзыва выше:", reply_markup=admin_kb)
     else:
         admin_text += f"📸 Способ подтверждения: Скриншоты заказа и отзыва\n"
         media_group = [
@@ -193,11 +204,8 @@ async def admin_send_promo(message: Message, state: FSMContext):
         
     await state.clear()
 
-# --- ТЕПЕРЬ ВСЁ СТАРТУЕТ ПРАВИЛЬНО ТУТ ---
 async def main():
     await bot.delete_webhook(drop_pending_updates=True)
-    
-    # КРИТИЧЕСКИЙ ФИКС: Сначала создаем базу данных и таблицы, а уже потом включаем бота!
     await database.init_db()
     
     default_commands = [
