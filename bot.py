@@ -25,7 +25,7 @@ async def start_cmd(message: Message, state: FSMContext):
     await database.init_db()
     
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Sub/Follow 🇷🇺 Русский", callback_data="lang_ru"),
+        [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang_ru"),
          InlineKeyboardButton(text="🇺🇿 O'zbekcha", callback_data="lang_uz")]
     ])
     await message.answer("Здравствуйте! / Assalomu alaykum!\nВыберите язык / Tilni tanlang:", reply_markup=kb)
