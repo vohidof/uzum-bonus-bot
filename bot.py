@@ -20,18 +20,15 @@ ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 
 # --- ФУНКЦИЯ ДИНАМИЧЕСКОЙ НАСТРОЙКИ МЕНЮ ---
 async def update_user_menu(user_id: int, lang: str):
-    # Формируем команды на основе выбранного пользователем языка
     commands = [
         BotCommand(command="promo", description=MESSAGES[lang]['menu_promo']),
         BotCommand(command="lang", description=MESSAGES[lang]['menu_lang'])
     ]
     
-    # Если этот user_id является админом, то ПЕРСОНАЛЬНО для него добавляем кнопку /admin
     if user_id == ADMIN_ID:
         commands.append(BotCommand(command="admin", description="🔧 Панель управления"))
     
     try:
-        # Применяем это меню конкретно для этого чата (user_id)
         await bot.set_my_commands(commands, scope=BotCommandScopeChat(chat_id=user_id))
     except Exception as e:
         print(f"Ошибка обновления меню для {user_id}: {e}")
@@ -61,15 +58,13 @@ async def promo_cmd(message: Message, state: FSMContext):
 @dp.message(Command("admin"))
 async def admin_panel_cmd(message: Message):
     if message.from_user.id != ADMIN_ID:
-        return # Обычные пользователи ничего не получат
-        
+        return
     await message.answer("🔧 **Панель администратора GazpromBonus**\n\nВы находитесь в режиме управления. Все заявки приходят сюда.")
 
 @dp.message(Command("start"))
 async def start_cmd(message: Message, state: FSMContext):
     await state.clear()
-    await database.init_db()
-    
+    # УБРАЛИ отсюда создание базы данных, так как она теперь создается при старте всего бота
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang_ru"),
          InlineKeyboardButton(text="🇺🇿 O'zbekcha", callback_data="lang_uz")]
@@ -81,9 +76,7 @@ async def set_language(callback: CallbackQuery, state: FSMContext):
     lang = callback.data.split("_")[1]
     await database.set_lang(callback.from_user.id, lang)
     
-    # КРИТИЧЕСКИ ВАЖНО: Обновляем меню кнопок в Telegram под выбранный язык!
     await update_user_menu(callback.from_user.id, lang)
-    
     await callback.message.edit_text(MESSAGES[lang]['lang_selected'], reply_markup=None)
     
     kb = InlineKeyboardMarkup(inline_keyboard=[
@@ -151,7 +144,7 @@ async def process_review_photo(message: Message, state: FSMContext):
     
     if method == "number":
         admin_text += f"🔢 Номер заказа: `{order_info}`\n"
-        await bot.send_photo(chat_id=ADMIN_ID, photo=review_photo_id, caption=admin_text + "\n📸 Фото отзыва выше:", reply_markup=admin_kb)
+        await bot.send_photo(chat_id=ADMIN_ID, photo=review_photo_id, caption=admin_text + "\n📸 Фото отзыва ниже:", reply_markup=admin_kb)
     else:
         admin_text += f"📸 Способ подтверждения: Скриншоты заказа и отзыва\n"
         media_group = [
@@ -200,17 +193,19 @@ async def admin_send_promo(message: Message, state: FSMContext):
         
     await state.clear()
 
+# --- ТЕПЕРЬ ВСЁ СТАРТУЕТ ПРАВИЛЬНО ТУТ ---
 async def main():
     await bot.delete_webhook(drop_pending_updates=True)
     
-    # Стандартное меню заглушка для тех, кто вообще еще ничего не нажал
+    # КРИТИЧЕСКИЙ ФИКС: Сначала создаем базу данных и таблицы, а уже потом включаем бота!
+    await database.init_db()
+    
     default_commands = [
         BotCommand(command="promo", description="Получить промокод / Promokod olish"),
         BotCommand(command="lang", description="Сменить язык / Tilni o'zgartirish")
     ]
     await bot.set_my_commands(default_commands, scope=BotCommandScopeDefault())
     
-    # Принудительно на старте прописываем для вас (админа) русское меню + секретную кнопку
     if ADMIN_ID != 0:
         await update_user_menu(ADMIN_ID, "ru")
         
