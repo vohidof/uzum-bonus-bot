@@ -5,7 +5,8 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+# ДОБАВИЛИ InputMediaPhoto для работы с альбомами картнок
+from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, InputMediaPhoto
 import database
 from texts import MESSAGES
 
@@ -95,20 +96,29 @@ async def process_review_photo(message: Message, state: FSMContext):
     await message.answer(MESSAGES[lang]['success_user'])
     await state.clear()
     
-    # Сборка заявки для АДМИНА
+    # Сборка кнопок управления для АДМИНА
     admin_kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Одобрить ✅", callback_data=f"adm_app_{message.from_user.id}"),
          InlineKeyboardButton(text="Отклонить ❌", callback_data=f"adm_rej_{message.from_user.id}")]
     ])
     
     admin_text = f"📥 **Новая заявка!**\n👤 Пользователь: @{message.from_user.username or 'без юзернейма'} (ID: {message.from_user.id})\n"
+    
     if method == "number":
         admin_text += f"🔢 Номер заказа: `{order_info}`\n"
-        await bot.send_photo(chat_id=ADMIN_ID, photo=review_photo_id, caption=admin_text + "📸 Фото отзыва ниже:", reply_markup=admin_kb)
+        await bot.send_photo(chat_id=ADMIN_ID, photo=review_photo_id, caption=admin_text + "\n📸 Фото отзыва выше:", reply_markup=admin_kb)
     else:
-        admin_text += f"📸 Скриншот заказа и отзыва прикреплены ниже.\n"
-        await bot.send_photo(chat_id=ADMIN_ID, photo=order_info, caption=admin_text + "1️⃣ Скриншот заказа:")
-        await bot.send_photo(chat_id=ADMIN_ID, photo=review_photo_id, caption="2️⃣ Скриншот отзыва:", reply_markup=admin_kb)
+        admin_text += f"📸 Способ подтверждения: Скриншоты заказа и отзыва\n"
+        
+        # 1. Формируем группу из двух скриншотов (они придут красивым одним сообщением)
+        media_group = [
+            InputMediaPhoto(media=order_info, caption="1️⃣ Скриншот заказа"),
+            InputMediaPhoto(media=review_photo_id, caption="2️⃣ Скриншот отзыва")
+        ]
+        await bot.send_media_group(chat_id=ADMIN_ID, media=media_group)
+        
+        # 2. Сразу же под ними отправляем текстовую панель управления с кнопками действия
+        await bot.send_message(chat_id=ADMIN_ID, text=admin_text + "\n👇 Выберите действие:", reply_markup=admin_kb)
 
 # --- АДМИНСКАЯ ЛОГИКА ---
 @dp.callback_query(F.data.startswith("adm_"))
