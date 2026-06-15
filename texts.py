@@ -13,9 +13,12 @@ MESSAGES = {
         'invalid_photo': '❌ Пожалуйста, отправьте именно фотографию/скриншот.',
         'approved_user': '✅ Ваша заявка одобрена! Ваш промокод:\n\n`{promocode}`',
         'rejected_user': '❌ К сожалению, ваша заявка была отклонена модератором. Проверьте правильность данных и попробуйте снова.',
-        # Кнопки меню
         'menu_promo': 'нажмите чтобы получить промокод заново',
-        'menu_lang': 'нажмите чтобы поменять язык'
+        'menu_lang': 'нажмите чтобы поменять язык',
+        'lang_changed_menu': '🌐 Язык успешно изменен!\n\nЧтобы отправить новую заявку на промокод, выберите команду **🔢 Получить промокод** в меню бота.',
+        'lang_changed_admin': '🔧 Язык панели администратора успешно обновлен!',
+        # Перевод для админки
+        'menu_admin': '🔧 Панель управления'
     },
     'uz': {
         'start': 'Здравствуйте! / Assalomu alaykum!\nВыберите язык / Tilni tanlang:',
@@ -26,13 +29,16 @@ MESSAGES = {
         'ask_order_num': 'Iltimos, Uzum-dagi buyurtma raqamingizni kiriting (faqat raqamlar):',
         'ask_order_screen': 'Iltimos, Uzum shaxsiy kabinetidan buyurtmangiz skrinshotini yuboring:',
         'ask_review_screen': "Ajoyib! Endi Uzum-da qoldirgan sharhingizning skrinshotini yuboring:",
-        'success_user': "🎉 Rahmat! Soʻrovingiz qabul kijindi va tekshirish uchun yuborildi. Promokodni kuting!",
+        'success_user': "🎉 Rahmat! Soʻrovingiz qabul qilindi va tekshirish uchun yuborildi. Promokodni kuting!",
         'invalid_number': "❌ Iltimos, to'g'ri buyurtma raqamini kiriting (faqat raqamlar).",
         'invalid_photo': "❌ Iltimos, aynan rasm/skrinshot yuboring.",
         'approved_user': '✅ Soʻrovingiz tasdiqlandi! Sizning promokodingiz:\n\n`{promocode}`',
         'rejected_user': "❌ Afsuski, so'rovingiz moderator tomonidan rad etildi. Ma'lumotlarni tekshiring va qaytadan urunib ko'ring.",
-        # Кнопки меню
         'menu_promo': 'promokodni qaytadan olish uchun bosing',
-        'menu_lang': "tilni o'zgartirish uchun bosing"
+        'menu_lang': "tilni o'zgartirish uchun bosing",
+        'lang_changed_menu': "🌐 Til muvaffaqiyatli o'zgartirildi!\n\nPromokodga yangi ariza yuborish uchun bot menyusidan **🔢 Promokod olish** buyrug'ini tanlang.",
+        'lang_changed_admin': "🔧 Administrator paneli tili muvaffaqiyatli yangilandi!",
+        # Перевод для админки
+        'menu_admin': '🔧 Boshqaruv paneli'
     }
 }
