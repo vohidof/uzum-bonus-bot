@@ -1,16 +1,32 @@
 MESSAGES = {
     'ru': {
-        'start': 'Здравствуйте! Выберите язык для общения:',
-        'choice': 'Как вы хотите подтвердить покупку?',
-        'order_num': 'Прислать номер заказа',
-        'screenshot': 'Прислать скриншот',
-        'thanks': 'Спасибо! Ваша заявка принята, ожидайте проверки.'
+        'start': 'Здравствуйте! / Assalomu alaykum!\nВыберите язык / Tilni tanlang:',
+        'lang_selected': 'Вы выбрали русский язык 🇷🇺',
+        'choice_method': 'Как вы хотите подтвердить покупку?',
+        'btn_order_num': '🔢 Номер заказа',
+        'btn_screenshot': '📸 Скриншот заказа',
+        'ask_order_num': 'Пожалуйста, введите номер вашего заказа из Uzum (только цифры):',
+        'ask_order_screen': 'Пожалуйста, отправьте скриншот вашего заказа из личного кабинета Uzum:',
+        'ask_review_screen': 'Отлично! Теперь отправьте скриншот вашего оставленного отзыва на Uzum:',
+        'success_user': '🎉 Спасибо! Ваша заявка принята и отправлена на проверку. Ожидайте промокод!',
+        'invalid_number': '❌ Пожалуйста, введите корректный номер заказа (только цифры).',
+        'invalid_photo': '❌ Пожалуйста, отправьте именно фотографию/скриншот.',
+        'approved_user': '✅ Ваша заявка одобрена! Ваш промокод:\n\n`{promocode}`',
+        'rejected_user': '❌ К сожалению, ваша заявка была отклонена модератором. Проверьте правильность данных и попробуйте снова.',
     },
     'uz': {
-        'start': 'Assalomu alaykum! Tilni tanlang:',
-        'choice': 'Xaridingizni qanday tasdiqlamoqchisiz?',
-        'order_num': 'Buyurtma raqamini yuborish',
-        'screenshot': 'Skrinshot yuborish',
-        'thanks': 'Rahmat! Soʻrovingiz qabul qilindi, tekshiruvni kuting.'
+        'start': 'Здравствуйте! / Assalomu alaykum!\nВыберите язык / Tilni tanlang:',
+        'lang_selected': "Siz o'zbek tilini tanladingiz 🇺🇿",
+        'choice_method': 'Xaridingizni qanday tasdiqlamoqchisiz?',
+        'btn_order_num': '🔢 Buyurtma raqami',
+        'btn_screenshot': '📸 Buyurtma skrinshoti',
+        'ask_order_num': 'Iltimos, Uzum-dagi buyurtma raqamingizni kiriting (faqat raqamlar):',
+        'ask_order_screen': 'Iltimos, Uzum shaxsiy kabinetidan buyurtmangiz skrinshotini yuboring:',
+        'ask_review_screen': "Ajoyib! Endi Uzum-da qoldirgan sharhingizning skrinshotini yuboring:",
+        'success_user': "🎉 Rahmat! Soʻrovingiz qabul qilindi va tekshirish uchun yuborildi. Promokodni kuting!",
+        'invalid_number': "❌ Iltimos, to'g'ri buyurtma raqamini kiriting (faqat raqamlar).",
+        'invalid_photo': "❌ Iltimos, aynan rasm/skrinshot yuboring.",
+        'approved_user': '✅ Soʻrovingiz tasdiqlandi! Sizning promokodingiz:\n\n`{promocode}`',
+        'rejected_user': "❌ Afsuski, so'rovingiz moderator tomonidan rad etildi. Ma'lumotlarni tekshiring va qaytadan urunib ko'ring.",
     }
 }
